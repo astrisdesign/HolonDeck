@@ -3,6 +3,7 @@ import { ParsedFile, JsonObject, JsonValue } from './types';
 import FileUpload from './components/FileUpload';
 import JsonGrid from './components/JsonGrid';
 import JsonModal from './components/JsonModal';
+import HelpModal from './components/HelpModal';
 import { AlertCircle, Home, Save, RotateCcw, RotateCw } from 'lucide-react';
 import { save } from '@tauri-apps/plugin-dialog';
 import { writeTextFile } from '@tauri-apps/plugin-fs';
@@ -28,6 +29,9 @@ const App: React.FC = () => {
 
   // State for raw file editing (fixing invalid JSON)
   const [rawFileState, setRawFileState] = useState<{ text: string, name: string, size: number } | null>(null);
+
+  // State for help modal
+  const [showHelp, setShowHelp] = useState(false);
 
   // Construct the ParsedFile object on the fly from current history state
   const parsedFile: ParsedFile | null = useMemo(() => {
@@ -263,6 +267,15 @@ const App: React.FC = () => {
                 </div>
 
                 <button
+                  onClick={() => setShowHelp(true)}
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-text-main hover:text-accent hover:bg-surface rounded-lg transition-all border border-transparent hover:border-subtle"
+                  title="Keyboard Shortcuts"
+                  aria-label="Show keyboard shortcuts"
+                >
+                  <span className="text-lg leading-none">ⓘ</span>
+                </button>
+
+                <button
                   onClick={handleDownload}
                   className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-text-main hover:text-accent hover:bg-surface rounded-lg transition-all border border-transparent hover:border-subtle"
                   title="Save to Disk (Ctrl+S)"
@@ -303,6 +316,11 @@ const App: React.FC = () => {
               onClose={() => setRawFileState(null)}
               onSave={handleRawSave}
           />
+      )}
+
+      {/* Help Modal */}
+      {showHelp && (
+          <HelpModal onClose={() => setShowHelp(false)} />
       )}
     </div>
   );
