@@ -54,42 +54,42 @@
   --font-sans: 'Inter', sans-serif;
   --font-serif: 'Source Serif 4', serif;
   
-  /* Perplexity Comet-inspired color palette */
-  --color-base: #191a1a;
+  /* High-Visibility Code Editor color palette */
+  --color-base: #111212;
   --color-surface: #222323;
   --color-surface-hover: #2a2b2b;
   --color-subtle: #2d2f2f;
   --color-highlight: #383a3a;
   --color-accent: #22d3ee;
-  --color-text-main: #e5e7eb;
-  --color-text-muted: #9ca3af;
-  --color-text-dim: #6b7280;
+  --color-text-main: #f8fafc;
+  --color-text-muted: #cbd5e1;
+  --color-text-dim: #94a3b8;
   
   /* Shadow */
-  --shadow-glow: 0 0 20px -5px rgba(34, 211, 238, 0.15);
+  --shadow-glow: 0 0 20px -5px rgba(34, 211, 238, 0.3);
 }
 
 /* Base Styles */
 body {
-  background-color: #191a1a;
-  color: #e5e7eb;
+  background-color: #111212;
+  color: #f8fafc;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #191a1a;
+  background: #111212;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2d2f2f;
-  border-radius: 4px;
+  background: #383a3a;
+  border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #383a3a;
+  background: #4a4c4c;
 }

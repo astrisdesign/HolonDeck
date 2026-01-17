@@ -509,7 +509,7 @@ const JsonGrid: React.FC<JsonGridProps> = ({ file, onUpdate }) => {
           <div className="flex items-center gap-2 p-1 bg-surface/50 border border-subtle rounded-lg overflow-x-auto backdrop-blur-sm">
               <button 
                   onClick={() => setPath([])}
-                  className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-sm font-medium transition-colors ${path.length === 0 ? 'text-white bg-white/10' : 'text-text-muted hover:text-white hover:bg-white/5'}`}
+                  className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-sm font-bold transition-colors ${path.length === 0 ? 'text-white bg-accent/20' : 'text-text-muted hover:text-white hover:bg-white/5'}`}
               >
                   <Home className="w-3.5 h-3.5" />
                   <span>{file.name}</span>
@@ -520,7 +520,7 @@ const JsonGrid: React.FC<JsonGridProps> = ({ file, onUpdate }) => {
                       <BreadcrumbSeparator className="w-3.5 h-3.5 text-text-dim" />
                       <button
                           onClick={() => setPath(prev => prev.slice(0, i + 1))}
-                          className={`px-2 py-0.5 rounded-md text-sm font-medium transition-colors ${i === path.length - 1 ? 'text-white bg-white/10' : 'text-text-muted hover:text-white hover:bg-white/5'}`}
+                          className={`px-2 py-0.5 rounded-md text-sm font-bold transition-colors ${i === path.length - 1 ? 'text-white bg-accent/20' : 'text-text-muted hover:text-white hover:bg-white/5'}`}
                       >
                           {segment}
                       </button>
@@ -535,7 +535,7 @@ const JsonGrid: React.FC<JsonGridProps> = ({ file, onUpdate }) => {
                           <ChevronLeft className="w-4 h-4" />
                       </button>
                   )}
-                  <span className="px-2 py-0.5 rounded-full bg-surface border border-subtle text-[11px] text-text-muted font-medium">
+                  <span className="px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-[11px] text-accent font-extrabold shadow-glow">
                   {filteredData.length} items
                   </span>
               </div>
@@ -561,7 +561,7 @@ const JsonGrid: React.FC<JsonGridProps> = ({ file, onUpdate }) => {
                           placeholder="Search... (Press 's')"
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
-                          className="block w-full pl-9 pr-3 py-1.5 bg-surface border border-subtle rounded-full text-text-main placeholder-text-dim focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 text-sm transition-all shadow-sm"
+                          className="block w-full pl-9 pr-3 py-1.5 bg-surface border-2 border-subtle rounded-full text-text-main font-bold placeholder-text-dim placeholder:font-bold focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 text-sm transition-all shadow-sm"
                       />
                   </div>
               </div>

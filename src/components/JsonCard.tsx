@@ -66,8 +66,8 @@ const JsonCard: React.FC<JsonCardProps> = ({
             <div className="flex flex-col gap-0.5 ml-1 border-l-2 border-subtle pl-2">
                 {keys.slice(0, 4).map(k => (
                     <div key={k} className="flex gap-2 truncate">
-                        <span className="text-text-muted opacity-80 shrink-0">{k}:</span>
-                        <span className="text-text-main truncate">{typeof val[k] === 'object' ? '...' : String(val[k])}</span>
+                        <span className="text-text-muted shrink-0">{k}:</span>
+                        <span className="text-text-main font-semibold truncate">{typeof val[k] === 'object' ? '...' : String(val[k])}</span>
                     </div>
                 ))}
                 {keys.length > 4 && <span className="text-text-dim text-[10px] pl-1">+{keys.length - 4} more</span>}
@@ -85,11 +85,11 @@ const JsonCard: React.FC<JsonCardProps> = ({
     if (typeof data !== 'object') {
       return (
         <div className="flex flex-col h-full">
-            <span className="text-accent font-semibold tracking-wide truncate mb-2" title={String(name)}>
+            <span className="text-accent font-bold text-[10px] tracking-wide truncate mb-2" title={String(name)}>
                 {name}
             </span>
             <div className="flex items-center justify-center flex-1">
-                <span className="text-lg text-text-main font-mono break-all">{String(data)}</span>
+                <span className="text-xl text-text-main font-bold font-mono break-all">{String(data)}</span>
             </div>
         </div>
       );
@@ -100,7 +100,7 @@ const JsonCard: React.FC<JsonCardProps> = ({
         const items = data.slice(0, 6);
         return (
             <div className="flex flex-col h-full">
-                <span className="text-accent font-semibold tracking-wide truncate mb-2" title={String(name)}>
+                <span className="text-accent font-bold text-[10px] tracking-wide truncate mb-2" title={String(name)}>
                     {name}
                 </span>
 
@@ -108,8 +108,8 @@ const JsonCard: React.FC<JsonCardProps> = ({
                     <div className="flex flex-col gap-2">
                         {items.map((item, i) => (
                             <div key={i} className="flex flex-col gap-0.5 overflow-hidden">
-                                <span className="text-accent/60 text-[10px] font-mono">{i}</span>
-                                <div className="text-text-dim text-xs truncate pl-2 border-l border-subtle">
+                                <span className="text-accent font-bold text-[10px] font-mono">{i}</span>
+                                <div className="text-text-main font-semibold text-xs truncate pl-2 border-l border-subtle">
                                      {typeof item === 'object' ? (Array.isArray(item) ? '[...]' : '{...}') : String(item)}
                                 </div>
                             </div>
@@ -134,10 +134,10 @@ const JsonCard: React.FC<JsonCardProps> = ({
         <>
         {bodyKeys.map(key => (
             <div key={key} className="flex flex-col gap-1 overflow-hidden">
-              <span className="text-accent/80 font-semibold tracking-wide truncate" title={key}>
+              <span className="text-accent font-bold text-[10px] tracking-wide truncate" title={key}>
                 {key}
               </span>
-              <div className="text-text-dim leading-relaxed">
+              <div className="text-text-main leading-relaxed">
                 {renderValue((data as any)[key])}
               </div>
             </div>
@@ -168,11 +168,11 @@ const JsonCard: React.FC<JsonCardProps> = ({
         group relative flex flex-col rounded-xl overflow-hidden transition-all duration-300 h-full min-h-[200px] border
         ${draggable ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
         ${isActive 
-            ? 'border-accent/60 shadow-glow ring-1 ring-accent/10' 
-            : 'border-subtle hover:border-accent/40 hover:shadow-glow'
+            ? 'border-accent/80 shadow-glow ring-1 ring-accent/10' 
+            : 'border-subtle hover:border-accent/50 hover:shadow-glow'
         }
         ${isSelected
-            ? 'bg-accent/10'
+            ? 'bg-accent/15'
             : isActive ? 'bg-surface' : 'bg-surface'
         }
       `}
@@ -187,9 +187,9 @@ const JsonCard: React.FC<JsonCardProps> = ({
                 <GripVertical className="w-3 h-3" />
             </div>
         )}
-        <span className="font-bold not-italic min-w-[1.5rem] truncate">{name}</span>
-        <div className="h-3 w-px bg-white/20 shrink-0"></div>
-        <span className="truncate font-medium">{preview}</span>
+        <span className="font-extrabold not-italic min-w-[1.5rem] truncate">{name}</span>
+        <div className="h-3 w-0.5 bg-white/20 shrink-0"></div>
+        <span className="truncate font-bold">{preview}</span>
       </div>
 
       {/* Details Button */}

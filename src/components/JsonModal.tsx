@@ -106,7 +106,7 @@ const JsonModal: React.FC<JsonModalProps> = ({ data, initialText, title = "Edit 
                          e.stopPropagation();
                          setShowErrorDetail(prev => !prev);
                      }}
-                     className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-xs hover:bg-red-500/20 transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-red-500/40"
+                     className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/20 border border-red-500/30 text-red-100 text-xs hover:bg-red-500/30 transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-red-500/40"
                  >
                      <AlertTriangle className="w-3 h-3 flex-shrink-0" />
                      <span className="truncate max-w-[200px] text-left">{error}</span>
@@ -151,7 +151,7 @@ const JsonModal: React.FC<JsonModalProps> = ({ data, initialText, title = "Edit 
 
         {/* Expanded Error Region */}
         {error && showErrorDetail && (
-            <div className="px-6 py-4 bg-red-500/10 border-b border-red-500/20 text-red-400 text-sm font-mono break-words whitespace-pre-wrap overflow-y-auto max-h-[200px] shrink-0 animate-in slide-in-from-top-2 duration-200 shadow-inner">
+            <div className="px-6 py-4 bg-red-500/20 border-b border-red-500/30 text-red-100 text-sm font-mono break-words whitespace-pre-wrap overflow-y-auto max-h-[200px] shrink-0 animate-in slide-in-from-top-2 duration-200 shadow-inner">
                 {error}
             </div>
         )}
@@ -161,7 +161,7 @@ const JsonModal: React.FC<JsonModalProps> = ({ data, initialText, title = "Edit 
             {/* Line Numbers */}
             <div 
                 ref={lineNumbersRef}
-                className="hidden sm:block w-12 py-6 text-right pr-3 bg-surface/30 text-text-dim/40 font-mono text-sm leading-relaxed select-none overflow-hidden border-r border-subtle/50"
+                className="hidden sm:block w-12 py-6 text-right pr-3 bg-surface/30 text-text-dim/40 font-mono text-sm font-bold leading-relaxed select-none overflow-hidden border-r border-subtle/50"
             >
                 {Array.from({ length: lineCount }, (_, i) => (
                     <div key={i}>{i + 1}</div>
@@ -175,12 +175,12 @@ const JsonModal: React.FC<JsonModalProps> = ({ data, initialText, title = "Edit 
                 onScroll={handleScroll}
                 onClick={() => setShowErrorDetail(false)}
                 spellCheck={false}
-                className="flex-1 w-full h-full p-6 bg-transparent text-text-main font-mono text-sm resize-none focus:outline-none selection:bg-accent/20 selection:text-white leading-relaxed whitespace-pre"
+                className="flex-1 w-full h-full p-6 bg-transparent text-text-main font-mono text-[13px] font-medium resize-none focus:outline-none selection:bg-accent/20 selection:text-white leading-relaxed whitespace-pre"
             />
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-subtle bg-surface text-xs text-text-dim flex justify-between font-mono shrink-0">
+        <div className="px-6 py-3 border-t border-subtle bg-surface text-xs text-text-dim flex justify-between font-mono font-bold shrink-0">
            <span>{text.length} chars, {lineCount} lines</span>
            <span>{error ? 'Invalid JSON' : 'Ready to Save'}</span>
         </div>
