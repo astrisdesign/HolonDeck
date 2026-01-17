@@ -12,6 +12,7 @@ interface JsonCardProps {
   onDragStart?: (e: React.DragEvent) => void;
   onDragOver?: (e: React.DragEvent) => void;
   onDrop?: (e: React.DragEvent) => void;
+  onDragEnd?: () => void;
   onClick: (e: React.MouseEvent) => void;
   onDoubleClick: (e: React.MouseEvent) => void;
   onDetailsClick: () => void;
@@ -28,6 +29,7 @@ const JsonCard: React.FC<JsonCardProps> = ({
     onDragStart,
     onDragOver,
     onDrop,
+    onDragEnd,
     onClick, 
     onDoubleClick, 
     onDetailsClick,
@@ -162,6 +164,7 @@ const JsonCard: React.FC<JsonCardProps> = ({
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDrop={onDrop}
+      onDragEnd={onDragEnd}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       className={`

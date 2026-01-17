@@ -15,6 +15,17 @@ interface SelectedItemState {
     fullPath: (string | number)[];
 }
 
+// Drop Indicator Component
+const DropIndicator = ({ isEnd }: { isEnd?: boolean }) => (
+  <div className={`
+      relative w-0 h-full flex items-center justify-center animate-in fade-in duration-200
+      ${isEnd ? 'ml-0' : '-ml-3 mr-3'} 
+  `}>
+      {/* The visible line: 1px wide with a vibrant cyan glow */}
+      <div className="absolute w-[1px] h-[90%] bg-accent rounded-full shadow-glow ring-5 ring-accent/30 z-50"></div>
+  </div>
+);
+
 const JsonGrid: React.FC<JsonGridProps> = ({ file, onUpdate }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedItem, setSelectedItem] = useState<SelectedItemState | null>(null);
@@ -29,6 +40,17 @@ const JsonGrid: React.FC<JsonGridProps> = ({ file, onUpdate }) => {
   
   // Drag State
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
+  
+  // Deterministic drag data (bypasses React state for reliability)
+  const dragDataRef = useRef<{ 
+    sourceIndex: number; 
+    indicesToMove: Set<number>;
+    itemsSnapshot: any[]; // Snapshot of allItems at drag start to avoid stale closures
+  } | null>(null);
+  
+  // Track drop target in ref (for onDragEnd, since onDrop is unreliable in WebViews)
+  const dropTargetRef = useRef<number | null>(null);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -140,20 +162,18 @@ const JsonGrid: React.FC<JsonGridProps> = ({ file, onUpdate }) => {
     onUpdate(newRoot as JsonObject[]);
   }, [file.data, path, onUpdate]);
 
-  // Multi-Item Reorder Logic
-  const handleMoveItems = useCallback((targetIndex: number) => {
+  // Deterministic Multi-Item Reorder (takes indices as param, no state dependencies)
+  const moveItemsDirect = useCallback((indicesToMove: Set<number>, targetIndex: number) => {
       if (searchTerm) return; // Cannot reorder while filtering
       
-      const indices = Array.from(selectedIndices).sort((a, b) => a - b);
+      const indices = Array.from(indicesToMove).sort((a, b) => a - b);
       if (indices.length === 0) return;
 
       // 1. Separate items to move and items to stay
       const itemsToMove = indices.map(i => allItems[i]);
-      const itemsToStay = allItems.filter((_, i) => !selectedIndices.has(i));
+      const itemsToStay = allItems.filter((_, i) => !indicesToMove.has(i));
 
       // 2. Calculate Insertion Point
-      // We map the targetIndex (which is based on the original list) to a position in itemsToStay.
-      // We subtract the number of selected items that were *originally* before the targetIndex.
       const numSelectedBeforeTarget = indices.filter(i => i < targetIndex).length;
       let insertionIndex = targetIndex - numSelectedBeforeTarget;
 
@@ -189,7 +209,12 @@ const JsonGrid: React.FC<JsonGridProps> = ({ file, onUpdate }) => {
       setFocusedIndex(insertionIndex);
       anchorIndexRef.current = insertionIndex;
 
-  }, [allItems, currentLevelData, searchTerm, updateDataAtCurrentPath, selectedIndices]);
+  }, [allItems, currentLevelData, searchTerm, updateDataAtCurrentPath]);
+
+  // Multi-Item Reorder Logic (wrapper for state-based calls)
+  const handleMoveItems = useCallback((targetIndex: number) => {
+      moveItemsDirect(selectedIndices, targetIndex);
+  }, [selectedIndices, moveItemsDirect]);
 
   const handleDelete = useCallback((targetIndex?: number) => {
     let localIndicesToDelete: number[] = [];
@@ -265,8 +290,20 @@ const JsonGrid: React.FC<JsonGridProps> = ({ file, onUpdate }) => {
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData("text/plain", index.toString());
       
-      // CRITICAL: Defer state updates to next tick. 
-      // Updating state immediately triggers a re-render that kills the drag source in WebViews.
+      // BULLETPROOF: Snapshot ALL data at drag start to avoid stale closures
+      const indicesToMove = selectedIndices.has(index) 
+          ? new Set(selectedIndices)
+          : new Set([index]);
+      
+      dragDataRef.current = {
+          sourceIndex: index,
+          indicesToMove: indicesToMove,
+          itemsSnapshot: [...allItems] // Capture exact state of items list
+      };
+      
+      dropTargetRef.current = null; // Reset target
+      
+      // CRITICAL: Defer state updates to next tick for WebView compatibility
       requestAnimationFrame(() => {
           if (!selectedIndices.has(index)) {
               setSelectedIndices(new Set([index]));
@@ -277,17 +314,87 @@ const JsonGrid: React.FC<JsonGridProps> = ({ file, onUpdate }) => {
       });
   };
 
-  const onDragOver = (e: React.DragEvent) => {
+  const onDragOver = (e: React.DragEvent, index: number) => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
+      
+      // Get the bounding box of the card being hovered
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      // Calculate mouse position relative to the card's left edge
+      const relX = e.clientX - rect.left;
+      // If the mouse is past the horizontal midpoint, target the next index
+      const isAfter = relX > rect.width / 2;
+      
+      const newTarget = isAfter ? index + 1 : index;
+      
+      setDropTargetIndex(newTarget); // For UI visual (drop indicator)
+      dropTargetRef.current = newTarget; // For logic (onDragEnd can read this)
   };
 
-  const onDrop = (e: React.DragEvent, targetIndex: number) => {
+  const onDrop = (e: React.DragEvent) => {
+      // Simplified: Just prevent default to satisfy HTML5 drag-drop API
+      // The actual move logic happens in onDragEnd (which always fires)
       e.preventDefault();
-      if (draggedIndex !== null) {
-          handleMoveItems(targetIndex);
-          setDraggedIndex(null);
+  };
+
+  const onDragEnd = () => {
+      // BULLETPROOF: Execute move using snapshot data (always fires, no stale closures)
+      const dragData = dragDataRef.current;
+      const targetIndex = dropTargetRef.current;
+
+      // Only move if we have both data and a valid target
+      if (dragData && targetIndex !== null && !searchTerm) {
+          const { indicesToMove, itemsSnapshot } = dragData;
+          const indices = Array.from(indicesToMove).sort((a, b) => a - b);
+          
+          if (indices.length > 0) {
+              // 1. Separate items to move and items to stay (using SNAPSHOT)
+              const itemsToMove = indices.map(i => itemsSnapshot[i]);
+              const itemsToStay = itemsSnapshot.filter((_, i) => !indicesToMove.has(i));
+
+              // 2. Calculate Insertion Point
+              const numSelectedBeforeTarget = indices.filter(i => i < targetIndex).length;
+              let insertionIndex = targetIndex - numSelectedBeforeTarget;
+
+              // Clamp to bounds
+              if (insertionIndex < 0) insertionIndex = 0;
+              if (insertionIndex > itemsToStay.length) insertionIndex = itemsToStay.length;
+
+              // 3. Construct new array
+              const newItems = [...itemsToStay];
+              newItems.splice(insertionIndex, 0, ...itemsToMove);
+
+              // 4. Update Data Structure
+              let newData: JsonValue;
+              if (Array.isArray(currentLevelData)) {
+                  newData = newItems.map(i => i.value);
+              } else {
+                  // Reconstruct object preserving order
+                  const newObj: JsonObject = {};
+                  newItems.forEach(item => {
+                      newObj[item.name as string] = item.value;
+                  });
+                  newData = newObj;
+              }
+
+              updateDataAtCurrentPath(newData);
+              
+              // 5. Update Selection
+              const newSet = new Set<number>();
+              for(let i = 0; i < itemsToMove.length; i++) {
+                  newSet.add(insertionIndex + i);
+              }
+              setSelectedIndices(newSet);
+              setFocusedIndex(insertionIndex);
+              anchorIndexRef.current = insertionIndex;
+          }
       }
+
+      // Cleanup
+      setDraggedIndex(null);
+      setDropTargetIndex(null);
+      dragDataRef.current = null;
+      dropTargetRef.current = null;
   };
 
   // Card Selection Handler
@@ -571,33 +678,42 @@ const JsonGrid: React.FC<JsonGridProps> = ({ file, onUpdate }) => {
 
       {/* Grid */}
       {currentData.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 relative">
           {currentData.map((item, index) => {
             const isSelected = selectedIndices.has(index);
             const isActive = focusedIndex === index;
+            const isDropTargetBefore = dropTargetIndex === index;
             
             return (
-              <JsonCard 
-                key={item.name} // Use name as key
-                id={`card-${index}`} // Assign ID for scroll handling
-                name={item.name}
-                data={item.value}
-                isActive={isActive}
-                isSelected={isSelected}
-                draggable={!searchTerm} 
-                onDragStart={(e) => onDragStart(e, index)}
-                onDragOver={onDragOver}
-                onDrop={(e) => onDrop(e, index)}
-                onClick={(e) => handleCardClick(e, index)}
-                onDoubleClick={(e) => {
-                    e.stopPropagation();
-                    handleDrillDown(item.name, item.value);
-                }}
-                onDelete={() => handleDelete(index)}
-                onDetailsClick={() => setSelectedItem({ data: item.value, name: item.name, fullPath: [...path, item.name] })}
-              />
+              <React.Fragment key={item.name}>
+                {/* Render the line BEFORE this card if the index matches */}
+                {isDropTargetBefore && <DropIndicator />}
+                
+                <JsonCard 
+                  id={`card-${index}`} // Assign ID for scroll handling
+                  name={item.name}
+                  data={item.value}
+                  isActive={isActive}
+                  isSelected={isSelected}
+                  draggable={!searchTerm} 
+                  onDragStart={(e) => onDragStart(e, index)}
+                  onDragOver={(e) => onDragOver(e, index)}
+                  onDrop={onDrop}
+                  onDragEnd={onDragEnd}
+                  onClick={(e) => handleCardClick(e, index)}
+                  onDoubleClick={(e) => {
+                      e.stopPropagation();
+                      handleDrillDown(item.name, item.value);
+                  }}
+                  onDelete={() => handleDelete(index)}
+                  onDetailsClick={() => setSelectedItem({ data: item.value, name: item.name, fullPath: [...path, item.name] })}
+                />
+              </React.Fragment>
             );
           })}
+          
+          {/* Special case: If dropping at the very end of the array */}
+          {dropTargetIndex === currentData.length && <DropIndicator isEnd />}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-24 text-text-dim">
