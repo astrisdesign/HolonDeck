@@ -17,11 +17,23 @@ const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
   }, [onClose]);
 
   const shortcuts = [
-    { keys: ['Ctrl', 'S'], mac: ['⌘', 'S'], description: 'Export/Save to disk' },
-    { keys: ['Ctrl', 'Z'], mac: ['⌘', 'Z'], description: 'Undo changes' },
-    { keys: ['Ctrl', 'Shift', 'Z'], mac: ['⌘', '⇧', 'Z'], description: 'Redo changes' },
-    { keys: ['Ctrl', 'Y'], mac: ['⌘', 'Y'], description: 'Redo changes (alternative)' },
-    { keys: ['Esc'], mac: ['Esc'], description: 'Close modal' },
+    // General
+    { keys: ['Ctrl', 'S'], mac: ['⌘', 'S'], description: 'Save changes' },
+    { keys: ['Ctrl', 'Z'], mac: ['⌘', 'Z'], description: 'Undo' },
+    { keys: ['Ctrl', 'Shift', 'Z'], mac: ['⌘', '⇧', 'Z'], description: 'Redo' },
+    // Navigation
+    { keys: ['Arrows'], mac: ['Arrows'], description: 'Navigate grid' },
+    { keys: ['Enter'], mac: ['Enter'], description: 'Open item' },
+    { keys: ['Tab'], mac: ['Tab'], description: 'Open item (Alt)' },
+    { keys: ['Shift', 'Enter'], mac: ['⇧', 'Enter'], description: 'Go to parent' },
+    { keys: ['Shift', 'Tab'], mac: ['⇧', 'Tab'], description: 'Go to parent (Alt)' },
+    { keys: ['S'], mac: ['S'], description: 'Focus search' },
+    // Actions
+    { keys: ['D'], mac: ['D'], description: 'View details' },
+    { keys: ['Ctrl', 'Arrows'], mac: ['⌘', 'Arrows'], description: 'Reorder items' },
+    { keys: ['Shift', 'Arrows'], mac: ['⇧', 'Arrows'], description: 'Range select' },
+    { keys: ['Delete'], mac: ['Delete'], description: 'Delete item' },
+    { keys: ['Esc'], mac: ['Esc'], description: 'Close / Deselect' },
   ];
 
   // Detect if user is on Mac
@@ -34,7 +46,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
         onClick={onClose}
       />
       
-      <div className="relative w-full max-w-2xl bg-base rounded-2xl shadow-2xl border border-subtle flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-2xl max-h-full bg-base rounded-2xl shadow-2xl border border-subtle flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-subtle bg-surface shrink-0">
@@ -49,7 +61,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
         </div>
 
         {/* Content */}
-        <div className="px-6 py-8 bg-base">
+        <div className="px-6 py-8 bg-base overflow-y-auto">
           <div className="space-y-4">
             {shortcuts.map((shortcut, index) => {
               const keysToDisplay = isMac ? shortcut.mac : shortcut.keys;
