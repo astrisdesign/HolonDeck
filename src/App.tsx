@@ -4,6 +4,8 @@ import FileUpload from './components/FileUpload';
 import JsonGrid from './components/JsonGrid';
 import JsonModal from './components/JsonModal';
 import { AlertCircle, Home, Save, RotateCcw, RotateCw } from 'lucide-react';
+import { save } from '@tauri-apps/plugin-dialog';
+import { writeTextFile } from '@tauri-apps/plugin-fs';
 
 const MAX_HISTORY = 50;
 
@@ -148,20 +150,30 @@ const App: React.FC = () => {
       });
   }, []);
 
-  const handleDownload = useCallback(() => {
+  const handleDownload = useCallback(async () => {
     if (!parsedFile) return;
-    
-    const jsonString = JSON.stringify(parsedFile.data, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = parsedFile.name || 'data.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+
+    try {
+      // 1. Open Native Save Dialog
+      // Returns the selected path (string) or null if canceled
+      const filePath = await save({
+        defaultPath: parsedFile.name || 'data.json',
+        filters: [{
+          name: 'JSON File',
+          extensions: ['json']
+        }]
+      });
+
+      if (!filePath) return; // User canceled
+
+      // 2. Write content to the selected path
+      // Works because save() whitelists this path for the current session
+      const jsonString = JSON.stringify(parsedFile.data, null, 2);
+      await writeTextFile(filePath, jsonString);
+
+    } catch (err) {
+      console.error('Export failed:', err);
+    }
   }, [parsedFile]);
 
   // Global Keyboard Shortcuts
