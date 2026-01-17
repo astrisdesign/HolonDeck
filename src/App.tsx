@@ -268,7 +268,6 @@ const App: React.FC = () => {
                   title="Save to Disk (Ctrl+S)"
                 >
                   <Save className="w-4 h-4" />
-                  <span className="hidden sm:inline">Export</span>
                 </button>
             </div>
           )}
