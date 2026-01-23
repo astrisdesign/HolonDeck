@@ -41,30 +41,11 @@ JExTile reimagines JSON editing through an intuitive, tile-based interface that 
 
 ---
 
-## 🖼️ Screenshots
+## 🎥 Demo
 
-### Home Screen
 <div align="center">
-  <img src="src-tauri/icons/screenshots/homescreen.png" alt="JExTile Home Screen - Drag and drop JSON files" width="800"/>
-  <p><em>Clean, intuitive file upload interface with drag-and-drop support</em></p>
-</div>
-
-### Main Grid View
-<div align="center">
-  <img src="src-tauri/icons/screenshots/toplevelview.png" alt="JExTile Grid View - Visual tile navigation" width="800"/>
-  <p><em>Browse JSON data as interactive tiles with smart previews and drill-down navigation</em></p>
-</div>
-
-### JSON Editor
-<div align="center">
-  <img src="src-tauri/icons/screenshots/editobject.png" alt="JExTile JSON Editor - Raw editing with validation" width="800"/>
-  <p><em>Powerful raw JSON editor with real-time validation and error highlighting</em></p>
-</div>
-
-### Keyboard Shortcuts
-<div align="center">
-  <img src="src-tauri/icons/screenshots/keycommands.png" alt="JExTile Keyboard Shortcuts Reference" width="800"/>
-  <p><em>Comprehensive keyboard shortcuts for power users</em></p>
+  <img src="src-tauri/icons/screenshots/demo.gif" alt="JExTile Demo - Complete walkthrough" width="800"/>
+  <p><em>See JExTile in action: file upload, tile navigation, JSON editing, and keyboard shortcuts</em></p>
 </div>
 
 ---
